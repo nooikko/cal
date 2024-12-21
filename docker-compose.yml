@@ -1,0 +1,33 @@
+version: "3.9"
+services:
+  postgres:
+    image: postgres:15
+    container_name: chroma_postgres
+    environment:
+      POSTGRES_USER: chroma_user
+      POSTGRES_PASSWORD: chroma_password
+      POSTGRES_DB: chroma_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  chromadb:
+    image: chromadb/chroma:latest
+    container_name: chromadb
+    environment:
+      CHROMA_DB_IMPL: "postgresql"
+      CHROMA_DB_HOST: "postgres"
+      CHROMA_DB_PORT: "5432"
+      CHROMA_DB_USER: "chroma_user"
+      CHROMA_DB_PASSWORD: "chroma_password"
+      CHROMA_DB_DATABASE: "chroma_db"
+      CHROMA_DB_MIGRATE_ON_START: "true"
+      CHROMA_SERVER_AUTHN_PROVIDER: "chromadb.auth.basic_authn.BasicAuthenticationServerProvider"
+      CHROMA_SERVER_AUTHN_CREDENTIALS: "admin:2y057KAmaJrUO.X/GcfqHLjjXOCzWO9L56Uyj0T3eAEOMfx7qvrokPHti"
+    depends_on:
+      - postgres
+    ports:
+      - "8000:8000"
+    restart: unless-stopped

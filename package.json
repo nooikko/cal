@@ -4,18 +4,23 @@
   "scripts": {
     "build": "turbo build",
     "dev": "turbo dev",
-    "lint": "turbo lint",
-    "format": "prettier --write \"**/*.{ts,tsx,md}\""
+    "test": "turbo test",
+    "lint:no-fix": "biome check .",
+    "lint": "biome check . --write",
+    "prepare": "husky"
   },
   "devDependencies": {
+    "@biomejs/biome": "1.9.4",
+    "dotenv-cli": "^8.0.0",
+    "husky": "^9.1.7",
     "prettier": "^3.2.5",
     "turbo": "^2.3.3",
     "typescript": "5.5.4"
   },
   "engines": {
-    "node": ">=18"
+    "node": ">=22"
   },
-  "packageManager": "npm@10.9.1",
+  "packageManager": "npm@10.9.0",
   "workspaces": [
     "apps/*",
     "packages/*"

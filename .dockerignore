@@ -1,0 +1,36 @@
+# Ignore node_modules at the root level
+node_modules/
+**/node_modules/
+
+# Ignore TurboRepo cache and other build artifacts
+/.turbo
+/.next
+/build
+
+# Ignore TypeScript build output directories
+/lib
+/out
+
+# Ignore temporary or editor-specific files
+*.log
+*.tsbuildinfo
+.vscode/
+.idea/
+*.swp
+.DS_Store
+
+# Ignore Dockerfile itself (if it's in the root)
+Dockerfile
+
+# Ignore any other files that shouldn't be in the Docker image
+*.md
+*.env.local
+*.env
+.gitignore
+.npmrc
+CODEOWNERS
+.changeset/
+.github/
+.husky/
+.editorconfig
+biome.json
