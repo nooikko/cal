@@ -4,16 +4,8 @@ import { SidebarUser } from '@/components/custom/sidebar-user';
 import { Sidebar, SidebarFooter, SidebarHeader, SidebarRail } from '@/components/ui/sidebar';
 import { cn } from '@/lib/utils';
 import { Code } from 'lucide-react';
-import { buttonVariants } from '../ui/button';
 import Link from 'next/link';
-
-const data = {
-  user: {
-    name: 'shadcn',
-    email: 'm@example.com',
-    avatar: '/avatars/shadcn.jpg',
-  },
-};
+import { buttonVariants } from '../ui/button';
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
@@ -42,7 +34,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </Link>
       </div>
       <SidebarFooter>
-        <SidebarUser user={data.user} />
+        <SidebarUser />
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>

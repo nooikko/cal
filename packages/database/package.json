@@ -1,8 +1,9 @@
 {
-  "name": "@cal/database",
+  "name": "@repo/database",
   "version": "1.0.0",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
   "scripts": {
     "db:format": "prisma format",
     "db:generate": "prisma generate",
@@ -16,7 +17,7 @@
     "predev": "npm run db:generate"
   },
   "dependencies": {
-    "@prisma/client": "^5.0.0",
+    "@prisma/client": "^6.1.0",
     "typescript": "^5.7.2"
   },
   "devDependencies": {
