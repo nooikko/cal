@@ -13,6 +13,8 @@
   "dependencies": {
     "@auth/prisma-adapter": "^2.7.4",
     "@lexical/react": "^0.21.0",
+    "@lexical/utils": "^0.21.0",
+    "@lexical/yjs": "^0.21.0",
     "@prisma/client": "^6.1.0",
     "@radix-ui/react-avatar": "^1.1.2",
     "@radix-ui/react-collapsible": "^1.1.2",
@@ -21,9 +23,8 @@
     "@radix-ui/react-separator": "^1.1.1",
     "@radix-ui/react-slot": "^1.1.1",
     "@radix-ui/react-tooltip": "^1.1.6",
-    "@repo/logger": "*",
     "@repo/database": "*",
-    "@repo/ui": "*",
+    "@repo/logger": "*",
     "argon2": "^0.41.1",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
@@ -35,17 +36,18 @@
     "next-auth": "^5.0.0-beta.25",
     "next-themes": "^0.4.4",
     "query-string": "^9.1.1",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
     "tailwind-merge": "^2.5.5",
     "tailwindcss-animate": "^1.0.7",
-    "typescript": "^5.7.2"
+    "typescript": "^5.7.2",
+    "yjs": "^13.6.21"
   },
   "devDependencies": {
     "@repo/typescript-config": "*",
     "@types/node": "^22.10.2",
-    "@types/react": "^18.3.18",
-    "@types/react-dom": "^18.3.5",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
     "autoprefixer": "^10.4.20",
     "postcss": "^8.4.49",
     "tailwindcss": "^3.4.17"

@@ -1,2 +1,2 @@
-npm test
-npm run lint:no-fix
+yarn test
+yarn lint:no-fix
