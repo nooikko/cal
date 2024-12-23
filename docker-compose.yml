@@ -1,33 +1,105 @@
 version: "3.9"
+
 services:
-  postgres:
-    image: postgres:15
-    container_name: chroma_postgres
+  # ------------------------------------------------
+  # Chroma Postgres
+  # ------------------------------------------------
+  cal_chromadb_postgres:
+    image: postgres:17.2
+    container_name: cal_chromadb_postgres
     environment:
-      POSTGRES_USER: chroma_user
-      POSTGRES_PASSWORD: chroma_password
-      POSTGRES_DB: chroma_db
+      POSTGRES_USER: "${CHROMA_POSTGRES_USER}"
+      POSTGRES_PASSWORD: "${CHROMA_POSTGRES_PASSWORD}"
+      POSTGRES_DB: "${CHROMA_POSTGRES_DB}"
     ports:
-      - "5432:5432"
+      - "${CHROMA_POSTGRES_PORT:-5432}:5432"
     volumes:
-      - ./postgres_data:/var/lib/postgresql/data
+      - ./cal_chromadb_postgres_data:/var/lib/postgresql/data
     restart: unless-stopped
 
-  chromadb:
+  # ------------------------------------------------
+  # Chroma DB
+  # ------------------------------------------------
+  cal_chromadb:
     image: chromadb/chroma:latest
-    container_name: chromadb
+    container_name: cal_chromadb
     environment:
       CHROMA_DB_IMPL: "postgresql"
-      CHROMA_DB_HOST: "postgres"
+      CHROMA_DB_HOST: "cal_chromadb_postgres"
       CHROMA_DB_PORT: "5432"
-      CHROMA_DB_USER: "chroma_user"
-      CHROMA_DB_PASSWORD: "chroma_password"
-      CHROMA_DB_DATABASE: "chroma_db"
+      CHROMA_DB_USER: "${CHROMA_POSTGRES_USER}"
+      CHROMA_DB_PASSWORD: "${CHROMA_POSTGRES_PASSWORD}"
+      CHROMA_DB_DATABASE: "${CHROMA_POSTGRES_DB}"
       CHROMA_DB_MIGRATE_ON_START: "true"
       CHROMA_SERVER_AUTHN_PROVIDER: "chromadb.auth.basic_authn.BasicAuthenticationServerProvider"
-      CHROMA_SERVER_AUTHN_CREDENTIALS: "admin:2y057KAmaJrUO.X/GcfqHLjjXOCzWO9L56Uyj0T3eAEOMfx7qvrokPHti"
+      CHROMA_SERVER_AUTHN_CREDENTIALS: "${CHROMA_SERVER_AUTHN_CREDENTIALS}"
     depends_on:
-      - postgres
+      - cal_chromadb_postgres
     ports:
       - "8000:8000"
     restart: unless-stopped
+
+  # ------------------------------------------------
+  # New Postgres for Non-Chroma App Data
+  # ------------------------------------------------
+  cal_app_postgres:
+    image: postgres:17.2
+    container_name: cal_app_postgres
+    environment:
+      POSTGRES_USER: "${APP_POSTGRES_USER}"
+      POSTGRES_PASSWORD: "${APP_POSTGRES_PASSWORD}"
+      POSTGRES_DB: "${APP_POSTGRES_DB}"
+    # If you don't need outside access to this DB, you can omit ports entirely.
+    ports:
+      - "${APP_POSTGRES_PORT:-5433}:5432"
+    volumes:
+      - ./cal_app_postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  # ------------------------------------------------
+  # Elasticsearch
+  # ------------------------------------------------
+  cal_elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.17.0
+    container_name: cal_elasticsearch
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=true
+      - xpack.security.transport.ssl.enabled=false
+      - xpack.security.http.ssl.enabled=false
+      - "ELASTIC_PASSWORD=${ELASTIC_PASSWORD}"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - es-data:/usr/share/elasticsearch/data
+    ports:
+      - "9200:9200"
+    networks:
+      - elk
+
+  # ------------------------------------------------
+  # Kibana
+  # ------------------------------------------------
+  cal_kibana:
+    image: docker.elastic.co/kibana/kibana:8.17.0
+    container_name: cal_kibana
+    environment:
+      - "ELASTICSEARCH_HOSTS=http://cal_elasticsearch:9200"
+      - "ELASTICSEARCH_USERNAME=elastic"
+      - "ELASTICSEARCH_PASSWORD=${ELASTIC_PASSWORD}"
+      - "XPACK_ENCRYPTEDSAVEDOBJECTS_ENCRYPTIONKEY=${KIBANA_ENCRYPTION_KEY}"
+    depends_on:
+      - cal_elasticsearch
+    ports:
+      - "5601:5601"
+    networks:
+      - elk
+
+networks:
+  elk:
+    driver: bridge
+
+volumes:
+  es-data:

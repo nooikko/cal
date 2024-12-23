@@ -7,7 +7,10 @@
     "test": "turbo test",
     "lint:no-fix": "biome check .",
     "lint": "biome check . --write",
-    "prepare": "husky"
+    "db:generate": "dotenv -e .env.local -- turbo db:generate",
+    "db:push": "dotenv -e .env.local -- turbo db:push",
+    "db:seed": "dotenv -e .env.local -- turbo db:seed",
+    "db:studio": "dotenv -e .env.local -- turbo db:studio"
   },
   "devDependencies": {
     "@biomejs/biome": "1.9.4",
@@ -21,8 +24,5 @@
     "node": ">=22"
   },
   "packageManager": "npm@10.9.0",
-  "workspaces": [
-    "apps/*",
-    "packages/*"
-  ]
+  "workspaces": ["apps/*", "packages/*"]
 }

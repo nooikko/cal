@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { ElevenLabsClient } from "elevenlabs";
 import { error } from "@repo/logger";
-import { type GenerateVoiceRequestData, ElevenLabsModel } from "./_types";
+import { type TextToSpeechRequestData, ElevenLabsModel } from "./_types";
 
 /**
  * Handles POST requests to generate a voice using the ElevenLabs API.
@@ -32,7 +32,7 @@ export const POST = async (request: NextRequest) => {
 			apiKey: process.env.ELEVENLABS_API_KEY,
 		});
 
-		const requestBody: Partial<GenerateVoiceRequestData> = await request.json();
+		const requestBody: Partial<TextToSpeechRequestData> = await request.json();
 
 		const voice = requestBody.voice ?? "Sarah";
 		const model_id = requestBody.model_id ?? ElevenLabsModel.FLASH_V2;

@@ -7,13 +7,13 @@ export enum ElevenLabsModel {
 	FLASH_V2 = "eleven_flash_v2",
 }
 
-export interface GenerateVoiceRequestData {
+export interface TextToSpeechRequestData {
 	voice?: string;
 	text: string;
 	model_id?: ElevenLabsModel;
 }
 
-export type GenerateVoiceResponseData = Promise<
+export type TextToSpeechResponseData = Promise<
 	| NextResponse<{
 			error: string;
 	  }>
