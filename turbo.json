@@ -9,10 +9,13 @@
       "outputs": [".next/**", "!.next/cache/**"]
     },
     "web#dev": {
+      "inputs": ["$TURBO_DEFAULT$", ".env.production.local", ".env.local", ".env.production", ".env"],
       "env": ["ELEVENLABS_API_KEY", "AUTH_GITHUB_SECRET", "AUTH_GITHUB_ID", "AUTH_SECRET", "APP_DATABASE_URL"]
     },
     "web#build": {
-      "env": ["ELEVENLABS_API_KEY", "AUTH_GITHUB_SECRET", "AUTH_GITHUB_ID", "AUTH_SECRET", "APP_DATABASE_URL"]
+      "inputs": ["$TURBO_DEFAULT$", ".env.production.local", ".env.local", ".env.production", ".env"],
+      "env": ["ELEVENLABS_API_KEY", "AUTH_GITHUB_SECRET", "AUTH_GITHUB_ID", "AUTH_SECRET", "APP_DATABASE_URL"],
+      "outputs": [".next/**", "!.next/cache/**"]
     },
     "//#lint": {
       "cache": false
