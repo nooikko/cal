@@ -14,7 +14,7 @@ services:
     ports:
       - "${CHROMA_POSTGRES_PORT:-5432}:5432"
     volumes:
-      - ./cal_chromadb_postgres_data:/var/lib/postgresql/data
+      - cal_chromadb_postgres_data:/var/lib/postgresql/data
     restart: unless-stopped
 
   # ------------------------------------------------
@@ -49,11 +49,10 @@ services:
       POSTGRES_USER: "${APP_POSTGRES_USER}"
       POSTGRES_PASSWORD: "${APP_POSTGRES_PASSWORD}"
       POSTGRES_DB: "${APP_POSTGRES_DB}"
-    # If you don't need outside access to this DB, you can omit ports entirely.
     ports:
       - "${APP_POSTGRES_PORT:-5433}:5432"
     volumes:
-      - ./cal_app_postgres_data:/var/lib/postgresql/data
+      - cal_app_postgres_data:/var/lib/postgresql/data
     restart: unless-stopped
 
   # ------------------------------------------------
@@ -103,3 +102,5 @@ networks:
 
 volumes:
   es-data:
+  cal_chromadb_postgres_data:
+  cal_app_postgres_data:
