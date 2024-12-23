@@ -1,6 +1,7 @@
 {
   "name": "cal",
   "private": true,
+  "license": "MIT",
   "scripts": {
     "build": "dotenv -e .env -- turbo build",
     "dev": "dotenv -e .env -- turbo dev",
