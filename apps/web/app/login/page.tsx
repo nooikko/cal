@@ -23,7 +23,7 @@ export default async function Login({ searchParams }: LoginProps) {
   }
 
   return (
-    <div className='flex items-center justify-center w-full h-full'>
+    <div className='flex items-center justify-center w-screen h-screen'>
       <Card className='w-96 border-transparent'>
         <CardHeader className='text-2xl text-center'>Welcome Back</CardHeader>
         <CardContent>

@@ -3,41 +3,50 @@
   "ui": "tui",
   "tasks": {
     "build": {
-      "dependsOn": [
-        "^build"
-      ],
-      "inputs": [
-        "$TURBO_DEFAULT$",
-        ".env.production.local",
-        ".env.local",
-        ".env.production",
-        ".env"
-      ],
-      "env": [
-        "ELEVENLABS_API_KEY"
-      ],
-      "outputs": [
-        ".next/**",
-        "!.next/cache/**"
-      ]
+      "dependsOn": ["^build"],
+      "inputs": ["$TURBO_DEFAULT$", ".env.production.local", ".env.local", ".env.production", ".env"],
+      "env": ["ELEVENLABS_API_KEY"],
+      "outputs": [".next/**", "!.next/cache/**"]
+    },
+    "web#dev": {
+      "env": ["ELEVENLABS_API_KEY", "AUTH_GITHUB_SECRET", "AUTH_GITHUB_ID", "AUTH_SECRET", "APP_DATABASE_URL"]
+    },
+    "web#build": {
+      "env": ["ELEVENLABS_API_KEY", "AUTH_GITHUB_SECRET", "AUTH_GITHUB_ID", "AUTH_SECRET", "APP_DATABASE_URL"]
     },
     "//#lint": {
       "cache": false
     },
     "test": {
-      "dependsOn": [
-        "^test"
-      ],
+      "dependsOn": ["^test"],
       "cache": true
     },
     "check-types": {
-      "dependsOn": [
-        "^check-types"
-      ]
+      "dependsOn": ["^check-types"]
     },
     "dev": {
       "cache": false,
       "persistent": true
+    },
+    "db:generate": {
+      "cache": false,
+      "env": ["APP_DATABASE_URL"]
+    },
+    "db:push": {
+      "cache": false,
+      "env": ["APP_DATABASE_URL"]
+    },
+    "db:seed": {
+      "cache": false,
+      "env": ["APP_DATABASE_URL"]
+    },
+    "db:studio": {
+      "cache": false,
+      "env": ["APP_DATABASE_URL"]
+    },
+    "db:migrate:dev": {
+      "cache": false,
+      "env": ["APP_DATABASE_URL"]
     }
   }
 }
