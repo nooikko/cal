@@ -1,7 +1,7 @@
-import { NextResponse, type NextRequest } from "next/server";
-import { ElevenLabsClient } from "elevenlabs";
-import { error } from "@repo/logger";
-import { type TextToSpeechRequestData, ElevenLabsModel } from "./_types";
+import { error } from '@repo/logger';
+import { ElevenLabsClient } from 'elevenlabs';
+import { type NextRequest, NextResponse } from 'next/server';
+import { ElevenLabsModel, type TextToSpeechRequestData } from './_types';
 
 /**
  * Handles POST requests to generate a voice using the ElevenLabs API.
@@ -23,44 +23,35 @@ import { type TextToSpeechRequestData, ElevenLabsModel } from "./_types";
  * The response will contain a JSON object with either the generated voice data or an error message.
  */
 export const POST = async (request: NextRequest) => {
-	try {
-		if (!process.env.ELEVENLABS_API_KEY) {
-			return NextResponse.json({ error: "Missing ElevenLabs API key" });
-		}
+  try {
+    if (!process.env.ELEVENLABS_API_KEY) {
+      return NextResponse.json({ error: 'Missing ElevenLabs API key' });
+    }
 
-		const client = new ElevenLabsClient({
-			apiKey: process.env.ELEVENLABS_API_KEY,
-		});
+    const client = new ElevenLabsClient({
+      apiKey: process.env.ELEVENLABS_API_KEY,
+    });
 
-		const requestBody: Partial<TextToSpeechRequestData> = await request.json();
+    const requestBody: Partial<TextToSpeechRequestData> = await request.json();
 
-		const voice = requestBody.voice ?? "Sarah";
-		const model_id = requestBody.model_id ?? ElevenLabsModel.FLASH_V2;
-		const text = requestBody.text;
+    const voice = requestBody.voice ?? 'Sarah';
+    const model_id = requestBody.model_id ?? ElevenLabsModel.FLASH_V2;
+    const text = requestBody.text;
 
-		if (!text) {
-			return NextResponse.json(
-				{ error: "Missing required field: text" },
-				{ status: 400, statusText: "Bad Request" },
-			);
-		}
+    if (!text) {
+      return NextResponse.json({ error: 'Missing required field: text' }, { status: 400, statusText: 'Bad Request' });
+    }
 
-		const generatedVoice = await client.generate({
-			voice,
-			text,
-			model_id,
-		});
+    const generatedVoice = await client.generate({
+      voice,
+      text,
+      model_id,
+    });
 
-		return NextResponse.json(
-			{ message: "Voice generated successfully", data: generatedVoice },
-			{ status: 200, statusText: "OK" },
-		);
-	} catch (e) {
-		const err = e as Error;
-		error("Error generating voice.", { err });
-		return NextResponse.json(
-			{ error: "Internal server error" },
-			{ status: 500, statusText: "Internal Server Error" },
-		);
-	}
+    return NextResponse.json({ message: 'Voice generated successfully', data: generatedVoice }, { status: 200, statusText: 'OK' });
+  } catch (e) {
+    const err = e as Error;
+    error('Error generating voice.', { err });
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500, statusText: 'Internal Server Error' });
+  }
 };

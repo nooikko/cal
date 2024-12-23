@@ -80,9 +80,11 @@ export const useQueryParams: UseQueryParams = () => {
    */
   const addQueryParams = useCallback(
     (params: QueryParamArgs) => {
-      const currentParams = searchParams ? queryString.parse(searchParams.toString(), {
-        arrayFormat: 'comma',
-      }) : {};
+      const currentParams = searchParams
+        ? queryString.parse(searchParams.toString(), {
+            arrayFormat: 'comma',
+          })
+        : {};
 
       const updatedParams: Record<string, string | (string | null)[] | null> = { ...currentParams };
 
@@ -112,9 +114,11 @@ export const useQueryParams: UseQueryParams = () => {
    */
   const removeQueryParams = useCallback(
     (keys: string[]) => {
-      const currentParams = searchParams ? queryString.parse(searchParams.toString(), {
-        arrayFormat: 'comma',
-      }) : {};
+      const currentParams = searchParams
+        ? queryString.parse(searchParams.toString(), {
+            arrayFormat: 'comma',
+          })
+        : {};
 
       for (const key of keys) {
         delete currentParams[key];
@@ -138,10 +142,12 @@ export const useQueryParams: UseQueryParams = () => {
    */
   const getSearchParams = useCallback(() => {
     // Parse the params using queryString.parse to handle arrays
-    const parsed = searchParams ? queryString.parse(searchParams.toString(), {
-      arrayFormat: 'comma', // Must match the format used in setSearchParams
-      decode: true,
-    }) : {};
+    const parsed = searchParams
+      ? queryString.parse(searchParams.toString(), {
+          arrayFormat: 'comma', // Must match the format used in setSearchParams
+          decode: true,
+        })
+      : {};
 
     return parsed;
   }, [searchParams]);

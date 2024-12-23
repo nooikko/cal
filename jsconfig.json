@@ -1,5 +1,5 @@
 {
-	"compilerOptions": {
-		"maxNodeModuleJsDepth": 0
-	}
+  "compilerOptions": {
+    "maxNodeModuleJsDepth": 0
+  }
 }

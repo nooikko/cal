@@ -1,4 +1,4 @@
-import { useRef, useState, useCallback, useMemo } from "react";
+import { useCallback, useMemo, useRef, useState } from 'react';
 
 interface TranscriptionResponse {
   transcription: string;
@@ -6,7 +6,7 @@ interface TranscriptionResponse {
 
 export const useMicrophone = () => {
   const [isRecording, setIsRecording] = useState<boolean>(false);
-  const [transcript, setTranscript] = useState<string>("");
+  const [transcript, setTranscript] = useState<string>('');
   const [error, setError] = useState<Error | null>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<BlobPart[]>([]);
@@ -20,7 +20,7 @@ export const useMicrophone = () => {
       mediaRecorderRef.current = mediaRecorder;
       audioChunksRef.current = [];
 
-      mediaRecorder.addEventListener("dataavailable", (event) => {
+      mediaRecorder.addEventListener('dataavailable', (event) => {
         if (event.data.size > 0) {
           audioChunksRef.current.push(event.data);
         }
@@ -28,7 +28,7 @@ export const useMicrophone = () => {
 
       return mediaRecorder;
     } catch (err) {
-      setError(new Error(`MICROPHONE_ERROR: ${err instanceof Error ? err.message : "Failed to initialize microphone"}`));
+      setError(new Error(`MICROPHONE_ERROR: ${err instanceof Error ? err.message : 'Failed to initialize microphone'}`));
       return null;
     }
   }, []);
@@ -43,29 +43,29 @@ export const useMicrophone = () => {
   }, [clearError, initializeMediaRecorder]);
 
   const createAudioBlob = useCallback(() => {
-    return new Blob(audioChunksRef.current, { type: "audio/webm" });
+    return new Blob(audioChunksRef.current, { type: 'audio/webm' });
   }, []);
 
   const transcribeAudio = useCallback(async (audioBlob: Blob): Promise<string> => {
     const formData = new FormData();
-    formData.append("file", audioBlob, "recording.webm");
+    formData.append('file', audioBlob, 'recording.webm');
 
     try {
-      const response = await fetch("http://localhost:8000/transcribe", {
-        method: "POST",
+      const response = await fetch('http://localhost:8000/transcribe', {
+        method: 'POST',
         body: formData,
       });
       const data: TranscriptionResponse = await response.json();
 
       if (!data.transcription) {
-        setError(new Error("TRANSCRIPTION_ERROR: No transcription received from the server"));
-        return "";
+        setError(new Error('TRANSCRIPTION_ERROR: No transcription received from the server'));
+        return '';
       }
 
       return data.transcription;
     } catch (err) {
-      setError(new Error(`TRANSCRIPTION_ERROR: ${err instanceof Error ? err.message : "Failed to transcribe audio"}`));
-      return "";
+      setError(new Error(`TRANSCRIPTION_ERROR: ${err instanceof Error ? err.message : 'Failed to transcribe audio'}`));
+      return '';
     }
   }, []);
 
@@ -73,7 +73,7 @@ export const useMicrophone = () => {
     if (!mediaRecorderRef.current) return;
 
     mediaRecorderRef.current.stop();
-    mediaRecorderRef.current.addEventListener("stop", async () => {
+    mediaRecorderRef.current.addEventListener('stop', async () => {
       const audioBlob = createAudioBlob();
       const transcription = await transcribeAudio(audioBlob);
       setTranscript(transcription);
@@ -81,12 +81,15 @@ export const useMicrophone = () => {
     });
   }, [createAudioBlob, transcribeAudio]);
 
-  return useMemo(() => ({
-    isRecording,
-    transcript,
-    error,
-    clearError,
-    startRecording,
-    stopRecording,
-  }), [isRecording, transcript, error, clearError, startRecording, stopRecording]);
+  return useMemo(
+    () => ({
+      isRecording,
+      transcript,
+      error,
+      clearError,
+      startRecording,
+      stopRecording,
+    }),
+    [isRecording, transcript, error, clearError, startRecording, stopRecording],
+  );
 };
