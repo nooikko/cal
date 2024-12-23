@@ -11,7 +11,7 @@
   },
   "scripts": {
     "build": "rimraf dist && node esbuild.mjs && tsc --project tsconfig.build.json && rollup -c rollup.config.mjs && rimraf dist/types && npx tsx post-processing.ts",
-    "dev": "npm run build",
+    "dev": "yarn build",
     "test": "jest --passWithNoTests"
   },
   "dependencies": {

@@ -13,9 +13,9 @@
     "db:push": "prisma db push",
     "db:seed": "tsx tools/seed.ts",
     "db:studio": "prisma studio",
-    "build": "npm run db:generate",
-    "prebuild": "npm run db:generate",
-    "predev": "npm run db:generate"
+    "build": "yarn db:generate",
+    "prebuild": "yarn db:generate",
+    "predev": "yarn db:generate"
   },
   "dependencies": {
     "@prisma/client": "^6.1.0",
