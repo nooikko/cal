@@ -1,7 +1,8 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
+import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import type { z } from 'zod';
 
@@ -9,30 +10,82 @@ import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { getPersonality } from './_actions/get-personality';
-import { deletePersonality, updateForm } from './_actions/update-form';
 import { updateFormSchema } from './_schemas/schema';
 
-export default async function PersonalityViewPage() {
+export default function PersonalityViewPage() {
   const params = useParams();
+  const router = useRouter();
   const personalityId = params.id as string;
-  const personality = await getPersonality(personalityId);
 
   const form = useForm<z.infer<typeof updateFormSchema>>({
     resolver: zodResolver(updateFormSchema),
     defaultValues: {
-      name: personality?.name ?? '',
-      systemPrompt: personality?.settings?.systemPrompt ?? '',
+      name: '',
+      systemPrompt: '',
     },
   });
 
-  if (!personality) {
-    return <div>Personality not found</div>;
-  }
+  useEffect(() => {
+    const fetchPersonality = async () => {
+      try {
+        const response = await fetch(`/api/personality/${personalityId}`);
+        if (!response.ok) {
+          throw new Error('Failed to fetch personality');
+        }
+        const result = await response.json();
+        if (result.data) {
+          form.reset({
+            name: result.data.name,
+            systemPrompt: result.data.settings.systemPrompt,
+          });
+        }
+      } catch (error) {
+        console.error('Error fetching personality:', error);
+      }
+    };
+
+    fetchPersonality();
+  }, [personalityId, form]);
+
+  const onSubmit = async (data: z.infer<typeof updateFormSchema>) => {
+    try {
+      const response = await fetch(`/api/personality/${personalityId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ...data,
+          maxContextLength: 10, // Keeping the default value
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update personality');
+      }
+
+      router.refresh();
+    } catch (error) {
+      console.error('Error updating personality:', error);
+    }
+  };
 
   const handleDelete = async () => {
     if (confirm('Are you sure you want to delete this personality?')) {
-      await deletePersonality(personalityId);
+      try {
+        const response = await fetch(`/api/personality/${personalityId}`, {
+          method: 'DELETE',
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to delete personality');
+        }
+
+        router.push('/settings/personalities');
+        router.refresh();
+      } catch (error) {
+        console.error('Error deleting personality:', error);
+      }
     }
   };
 
@@ -42,7 +95,7 @@ export default async function PersonalityViewPage() {
 
       <div className='max-w-2xl space-y-6'>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit((data) => updateForm(personalityId, data))} className='space-y-8'>
+          <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-8'>
             <FormField
               control={form.control}
               name='name'
@@ -50,13 +103,12 @@ export default async function PersonalityViewPage() {
                 <FormItem>
                   <FormLabel>Name</FormLabel>
                   <FormControl>
-                    <Input placeholder='Enter personality name' {...field} />
+                    <Input {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
-
             <FormField
               control={form.control}
               name='systemPrompt'
@@ -64,7 +116,7 @@ export default async function PersonalityViewPage() {
                 <FormItem>
                   <FormLabel>System Prompt</FormLabel>
                   <FormControl>
-                    <Textarea placeholder='Enter system prompt' className='min-h-[200px]' {...field} />
+                    <Textarea rows={10} {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -72,7 +124,7 @@ export default async function PersonalityViewPage() {
             />
 
             <div className='flex justify-between'>
-              <Button type='submit'>Update Personality</Button>
+              <Button type='submit'>Save Changes</Button>
               <Button type='button' variant='destructive' onClick={handleDelete}>
                 Delete Personality
               </Button>
