@@ -1,7 +1,6 @@
 import { auth } from '@/lib/auth';
 import type { NextAuthRequest } from 'next-auth';
 
-// biome-ignore lint/suspicious/noExplicitAny: Next expects the use of any in this case
 type ApiAuth = (args_0: (req: NextAuthRequest, ctx: Promise<any>) => Promise<Response>) => (...args: any) => any;
 
 /**
