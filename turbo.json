@@ -50,6 +50,10 @@
     "db:migrate:dev": {
       "cache": false,
       "env": ["APP_DATABASE_URL"]
+    },
+    "db:migrate:reset": {
+      "cache": false,
+      "env": ["APP_DATABASE_URL"]
     }
   }
 }

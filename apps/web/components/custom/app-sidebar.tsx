@@ -1,42 +1,81 @@
 'use client';
 
 import { SidebarUser } from '@/components/custom/sidebar-user';
-import { Sidebar, SidebarFooter, SidebarHeader, SidebarRail } from '@/components/ui/sidebar';
+import { Sidebar, SidebarFooter, SidebarHeader } from '@/components/ui/sidebar';
 import { cn } from '@/lib/utils';
-import { Code } from 'lucide-react';
+import { NavbarLinks } from '@/types/navigation';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { buttonVariants } from '../ui/button';
+import { Logo } from './logo';
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const pathname = usePathname();
+
+  const isActive = (href: string) => {
+    return pathname === href;
+  };
+
   return (
     <Sidebar collapsible='icon' {...props}>
       <SidebarHeader>
-        <div className='flex items-center text-3xl font-bold px-2 space-x-4'>
-          <Code />
-          <h1>CAL</h1>
-        </div>
+        <Logo />
       </SidebarHeader>
       <div className='flex flex-col flex-1'>
-        <Link href='/' className={cn(buttonVariants({ variant: 'ghost' }), ' text-left justify-start mx-2 py-3 h-[unset] text-lg ')}>
+        <Link
+          href={NavbarLinks.HOME}
+          className={cn(
+            buttonVariants({ variant: 'ghost' }),
+            'text-left justify-start mx-2 py-3 h-[unset] text-lg',
+            isActive(NavbarLinks.HOME) && 'bg-accent text-accent-foreground',
+          )}
+        >
           Home
         </Link>
-        <Link href='/learnings' className={cn(buttonVariants({ variant: 'ghost' }), ' text-left justify-start mx-2 py-3 h-[unset] text-lg')}>
+        <Link
+          href={NavbarLinks.LEARNINGS}
+          className={cn(
+            buttonVariants({ variant: 'ghost' }),
+            'text-left justify-start mx-2 py-3 h-[unset] text-lg',
+            isActive(NavbarLinks.LEARNINGS) && 'bg-accent text-accent-foreground',
+          )}
+        >
           Learnings
         </Link>
-        <Link href='/recordings' className={cn(buttonVariants({ variant: 'ghost' }), ' text-left justify-start mx-2 py-3 h-[unset] text-lg')}>
+        <Link
+          href={NavbarLinks.RECORDINGS}
+          className={cn(
+            buttonVariants({ variant: 'ghost' }),
+            'text-left justify-start mx-2 py-3 h-[unset] text-lg',
+            isActive(NavbarLinks.RECORDINGS) && 'bg-accent text-accent-foreground',
+          )}
+        >
           Recordings
         </Link>
-        <Link href='/health-monitoring' className={cn(buttonVariants({ variant: 'ghost' }), ' text-left justify-start mx-2 py-3 h-[unset] text-lg')}>
+        <Link
+          href={NavbarLinks.HEALTH_MONITORING}
+          className={cn(
+            buttonVariants({ variant: 'ghost' }),
+            'text-left justify-start mx-2 py-3 h-[unset] text-lg',
+            isActive(NavbarLinks.HEALTH_MONITORING) && 'bg-accent text-accent-foreground',
+          )}
+        >
           Health Monitoring
         </Link>
-        <Link href='/settings' className={cn(buttonVariants({ variant: 'ghost' }), ' text-left justify-start mx-2 py-3 h-[unset] text-lg')}>
+        <Link
+          href={NavbarLinks.SETTINGS}
+          className={cn(
+            buttonVariants({ variant: 'ghost' }),
+            'text-left justify-start mx-2 py-3 h-[unset] text-lg',
+            isActive(NavbarLinks.SETTINGS) && 'bg-accent text-accent-foreground',
+          )}
+        >
           Settings
         </Link>
       </div>
       <SidebarFooter>
         <SidebarUser />
       </SidebarFooter>
-      <SidebarRail />
     </Sidebar>
   );
 }

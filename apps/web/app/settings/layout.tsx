@@ -1,13 +1,13 @@
-import { AppSidebar } from '@/components/custom/app-sidebar';
+import { SettingsSidebar } from '@/components/custom/settings-sidebar';
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
     <SidebarProvider>
-      <AppSidebar />
-      <main>
+      <SettingsSidebar />
+      <main className='flex flex-1'>
         <SidebarTrigger className='block md:hidden' />
-        {children}
+        <div className='flex flex-1 flex-col m-4'>{children}</div>
       </main>
     </SidebarProvider>
   );

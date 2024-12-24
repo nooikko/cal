@@ -119,3 +119,26 @@ model AudioRecording {
   // relationships, you can add them here.
   ChatLog ChatLog[]
 }
+
+model Personality {
+  id   String @id @default(cuid())
+  name String
+
+  settingsId String              @unique
+  settings   PersonalitySettings @relation(fields: [settingsId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model PersonalitySettings {
+  id String @id @default(cuid())
+
+  maxContextLength Int    @default(10)
+  systemPrompt     String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  Personality Personality?
+}

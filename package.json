@@ -13,6 +13,7 @@
     "db:seed": "dotenv -e .env -- turbo db:seed",
     "db:studio": "dotenv -e .env -- turbo db:studio",
     "db:migrate:dev": "dotenv -e .env -- turbo db:migrate:dev",
+    "db:migrate:reset": "dotenv -e .env -- turbo db:migrate:reset",
     "postinstall": "husky && yarn db:generate"
   },
   "devDependencies": {
