@@ -30,6 +30,9 @@
         "useArrayLiterals": "off",
         "useExhaustiveDependencies": "off",
         "useHookAtTopLevel": "error"
+      },
+      "suspicious": {
+        "noExplicitAny": "off"
       }
     },
     "ignore": ["**/*.config.js", "**/.vscode/", "**/node_modules/", "**/.next", "**/.env*", "**/package.json", "**/package-lock.json"]

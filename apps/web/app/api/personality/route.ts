@@ -36,10 +36,10 @@ export type DeleteResponse = {
   error?: string;
 };
 
-export const GET = async (_request: NextRequest, context: { params: { id: string } }): Promise<NextResponse<GetResponse>> => {
-  try {
-    const { id } = context.params;
+export const GET = async (_request: NextRequest, { params }: { params: Promise<{ id: string }> }): Promise<NextResponse<GetResponse>> => {
+  const { id } = await params;
 
+  try {
     if (!id) {
       return NextResponse.json({ status: 400, error: 'ID parameter is required' });
     }
@@ -60,9 +60,10 @@ export const GET = async (_request: NextRequest, context: { params: { id: string
   }
 };
 
-export const PATCH = async (request: NextRequest, context: { params: { id: string } }): Promise<NextResponse<PatchResponse>> => {
+export const PATCH = async (request: NextRequest, { params }: { params: Promise<{ id: string }> }): Promise<NextResponse<PatchResponse>> => {
+  const { id } = await params;
+
   try {
-    const { id } = context.params;
     if (!id) {
       return NextResponse.json({ status: 400, error: 'ID parameter is required' });
     }
@@ -103,10 +104,10 @@ export const PATCH = async (request: NextRequest, context: { params: { id: strin
   }
 };
 
-export const DELETE = async (_request: NextRequest, context: { params: { id: string } }): Promise<NextResponse<DeleteResponse>> => {
-  try {
-    const { id } = context.params;
+export const DELETE = async (_request: NextRequest, { params }: { params: Promise<{ id: string }> }): Promise<NextResponse<DeleteResponse>> => {
+  const { id } = await params;
 
+  try {
     if (!id) {
       return NextResponse.json({ status: 400, error: 'ID parameter is required' });
     }
