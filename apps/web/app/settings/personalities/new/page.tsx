@@ -2,11 +2,12 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
-import { formSchema } from './_schemas/schema';
+import { personalityFormSchema } from '../_schemas/personality-schema';
 
 import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { Slider } from '@/components/ui/slider';
 import { Textarea } from '@/components/ui/textarea';
 import { useRouter } from 'next/navigation';
 import type { z } from 'zod';
@@ -14,24 +15,28 @@ import { baseSystemPrompt } from './_base-data';
 
 export default function NewPersonality() {
   // 1. Define your form.
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<z.infer<typeof personalityFormSchema>>({
+    resolver: zodResolver(personalityFormSchema),
     defaultValues: {
       name: '',
       systemPrompt: baseSystemPrompt,
+      maxContextLength: 10,
     },
   });
 
   const router = useRouter();
 
-  const onSubmit = async (data: z.infer<typeof formSchema>) => {
+  const onSubmit = async (data: z.infer<typeof personalityFormSchema>) => {
     try {
       const response = await fetch('/api/personality', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(data),
+        body: JSON.stringify({
+          ...data,
+          maxContextLength: data.maxContextLength,
+        }),
       });
 
       if (!response.ok) {
@@ -48,38 +53,59 @@ export default function NewPersonality() {
   };
 
   return (
-    <div className='max-w-2xl mx-auto w-full'>
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-8'>
-          <FormField
-            control={form.control}
-            name='name'
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Personality Name</FormLabel>
-                <FormControl>
-                  <Input placeholder='E.g. Cal' className='text-lg' {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name='systemPrompt'
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>System Prompt</FormLabel>
-                <FormControl>
-                  <Textarea placeholder='E.g. Cal' className='text-lg' rows={10} {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <Button type='submit'>Submit</Button>
-        </form>
-      </Form>
-    </div>
+    <main className='container mx-auto px-4 py-8 max-w-4xl'>
+      <h1 className='text-3xl font-bold mb-8'>Create New Personality</h1>
+
+      <div className='bg-card rounded-lg shadow-sm'>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-6'>
+            <FormField
+              control={form.control}
+              name='name'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className='text-lg'>Personality Name</FormLabel>
+                  <FormControl>
+                    <Input placeholder='Enter personality name' className='text-lg' {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name='systemPrompt'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className='text-lg'>System Prompt</FormLabel>
+                  <FormControl>
+                    <Textarea placeholder='Enter system prompt' className='min-h-[200px] text-lg' {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name='maxContextLength'
+              render={({ field: { value, onChange, ...field } }) => (
+                <FormItem>
+                  <FormLabel className='text-lg'>Max Context Length: {value}</FormLabel>
+                  <FormControl>
+                    <Slider min={1} max={100} step={1} value={[value]} onValueChange={(vals) => onChange(vals[0])} className='py-4' {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <div className='flex justify-end'>
+              <Button type='submit' size='lg'>
+                Create Personality
+              </Button>
+            </div>
+          </form>
+        </Form>
+      </div>
+    </main>
   );
 }

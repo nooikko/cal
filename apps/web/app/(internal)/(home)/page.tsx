@@ -1,11 +1,11 @@
-import { ChatHistory } from '@/components/custom/chat-history';
-import { ChatInput } from '@/components/custom/chat-input';
+import { ChatForm } from '@/features/chat/chat-form';
+import { ChatHistory } from '@/features/chat/history';
 
 export default function Home() {
   return (
     <div className='w-full h-full flex flex-col'>
       <ChatHistory />
-      <ChatInput />
+      <ChatForm />
     </div>
   );
 }

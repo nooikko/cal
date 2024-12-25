@@ -1,0 +1,7 @@
+{
+  "verbose": true,
+  "ext": "js,ts,json,mjs,cjs",
+  "ignore": ["*.test.js", "node_modules"],
+  "watch": ["src", "../logger/dist"],
+  "exec": "npm run build"
+}

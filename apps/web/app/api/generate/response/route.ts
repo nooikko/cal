@@ -1,4 +1,4 @@
-import { prisma } from '@repo/database'; // or wherever your Prisma instance is
+import { prisma } from '@repo/database';
 import { error } from '@repo/logger';
 import { type NextRequest, NextResponse } from 'next/server';
 
@@ -30,7 +30,7 @@ export const POST = async (request: NextRequest) => {
     const { settings } = personality;
     const { maxContextLength, systemPrompt } = settings;
 
-    // 2. Fetch the last N messages from ChatLog
+    // 2. Fetch the last N messages from ChatLog for this user
     const recentMessages = await prisma.chatLog.findMany({
       where: { userId: body.userId },
       orderBy: { createdAt: 'desc' },
@@ -41,13 +41,19 @@ export const POST = async (request: NextRequest) => {
     const conversation = recentMessages.reverse().map((log) => ({
       via: log.via,
       message: log.message,
+      senderType: log.senderType,
     }));
 
-    // 3. Append the new user message
-    conversation.push({ via: 'TEXT', message: body.message });
+    // 3. Append the *new user message* to the conversation
+    //    (We haven't created it in the DB yet; we do that after the Python call or right now.)
+    conversation.push({
+      via: 'TEXT',
+      message: body.message,
+      senderType: 'USER',
+    });
 
     // 4. Call the Python service
-    // We send the systemPrompt, conversation, etc.
+    //    We send the systemPrompt, conversation, etc.
     const response = await fetch(PYTHON_API_ENDPOINT, {
       method: 'POST',
       headers: {
@@ -55,7 +61,10 @@ export const POST = async (request: NextRequest) => {
       },
       body: JSON.stringify({
         systemPrompt,
-        conversation,
+        conversation: conversation.map((c) => ({
+          // The Python side only needs the message text (or other minimal fields)
+          message: c.message,
+        })),
       }),
     });
 
@@ -71,28 +80,31 @@ export const POST = async (request: NextRequest) => {
       return NextResponse.json({ error: 'No reply from Python' }, { status: 500 });
     }
 
-    // 5. Store the user’s new message & the bot’s reply in ChatLog
-    //    We already have the user’s new message in memory, but let's ensure it's in DB if needed.
-    //    For example, we can create it if not already created:
+    // 5. Store both the user’s new message & the system’s reply in ChatLog
+    //    User message: senderType=USER, userId=body.userId
     await prisma.chatLog.create({
       data: {
+        senderType: 'USER',
         via: 'TEXT',
         message: body.message,
         userId: body.userId,
+        // personalityId is not set here, since the user is not the personality
       },
     });
 
-    // Then store the bot’s reply:
+    //    System message: senderType=SYSTEM, personalityId=body.personalityId
     await prisma.chatLog.create({
       data: {
+        senderType: 'SYSTEM',
         via: 'TEXT',
         message: reply,
-        userId: body.userId,
+        personalityId: body.personalityId, // Link to the bot personality
+        // userId is not set, since this is from the system/bot
       },
     });
 
     // 6. Return the bot’s reply
-    return NextResponse.json({ reply });
+    return NextResponse.json({ reply }, { status: 200 });
   } catch (e) {
     const err = e as Error;
     error('Error in /api/generate/chat route:', { err });

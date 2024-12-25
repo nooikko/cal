@@ -132,8 +132,8 @@
   overflow: hidden;
   position: absolute;
   text-overflow: ellipsis;
-  top: 16px;
-  left: 1rem;
+  top: 9px;
+  left: 0.99rem;
   font-size: 15px;
   user-select: none;
   display: inline-block;

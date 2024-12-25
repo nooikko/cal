@@ -19,9 +19,11 @@ model User {
   // Optional for WebAuthn support
   Authenticator Authenticator[]
 
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  ChatLog   ChatLog[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // A user can have many ChatLogs (when senderType = USER)
+  ChatLog ChatLog[]
 }
 
 model Account {
@@ -84,10 +86,21 @@ enum ChatVia {
   AUDIO
 }
 
-// This model references the user and can store either
-// a text message or an audio recording reference
+// Who sent this message?
+enum SenderType {
+  USER
+  SYSTEM
+}
+
+// This model can store either a user message or a bot message.
+// If senderType = USER, 'userId' is set and 'personalityId' is null.
+// If senderType = BOT, 'personalityId' is set and 'userId' is null.
 model ChatLog {
-  id  String  @id @default(cuid())
+  id String @id @default(cuid())
+
+  // Added to distinguish user vs. bot
+  senderType SenderType @default(USER)
+
   via ChatVia
 
   // If via = TEXT, store the text message here:
@@ -97,9 +110,13 @@ model ChatLog {
   audioRecordingId String?
   audioRecording   AudioRecording? @relation(fields: [audioRecordingId], references: [id])
 
-  // Link to the user who sent the message
-  userId String
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  // Optional link to the human user who sent the message
+  userId String?
+  user   User?   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Optional link to the Personality if this message came from the bot
+  personalityId String?
+  personality   Personality? @relation(fields: [personalityId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -107,38 +124,35 @@ model ChatLog {
 
 // A separate model to handle audio file info, so you can reuse it anywhere
 model AudioRecording {
-  id            String  @id @default(cuid())
+  id            String   @id @default(cuid())
   path          String // e.g. S3 bucket path or local path
   filename      String? // optional for naming
   transcription String? // optional transcription text
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // If you want a direct reference to a user or more
-  // relationships, you can add them here.
+  // If you want a direct reference to a user or more relationships,
+  // you can add them here.
   ChatLog ChatLog[]
 }
 
 model Personality {
-  id   String @id @default(cuid())
-  name String
-
+  id         String              @id @default(cuid())
+  name       String
   settingsId String              @unique
   settings   PersonalitySettings @relation(fields: [settingsId], references: [id], onDelete: Cascade)
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  ChatLog   ChatLog[]
 }
 
 model PersonalitySettings {
-  id String @id @default(cuid())
-
-  maxContextLength Int    @default(10)
+  id               String   @id @default(cuid())
+  maxContextLength Int      @default(10)
   systemPrompt     String
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 
   Personality Personality?
 }
