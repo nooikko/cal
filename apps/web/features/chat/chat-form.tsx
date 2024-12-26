@@ -1,15 +1,15 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { z } from 'zod';
 
 import { Button } from '@/components/ui/button';
-import type { Personality } from '@prisma/client';
 import { ArrowUp } from 'lucide-react';
 
 import { ChatError } from './chat-error';
+import { useChatData } from './hooks/use-chat-data';
+import { useChatSubmit } from './hooks/use-chat-submit';
 import { ChatInput } from './input';
 import { PersonalitySelector } from './personality-selector';
 
@@ -22,9 +22,6 @@ const schema = z.object({
 type FormData = z.infer<typeof schema>;
 
 export function ChatForm() {
-  const [fetchError, setFetchError] = useState<string | null>(null);
-  const [personalities, setPersonalities] = useState<Personality[]>([]);
-
   const {
     control,
     handleSubmit,
@@ -38,82 +35,11 @@ export function ChatForm() {
     reValidateMode: 'onSubmit',
   });
 
-  // Fetch personalities + user data on mount
-  useEffect(() => {
-    const fetchUserAndPersonalities = async () => {
-      try {
-        // 1) Fetch personalities
-        const personalitiesResponse = await fetch('/api/personalities');
-        if (!personalitiesResponse.ok) {
-          setFetchError(`Error fetching personalities (status: ${personalitiesResponse.status})`);
-          return;
-        }
-        const personalitiesData = await personalitiesResponse.json();
+  // Hook that auto-fetches personalities & user info once on mount
+  const { fetchError, setFetchError, personalities } = useChatData(reset);
 
-        if (personalitiesData.status !== 200 || !personalitiesData.data) {
-          setFetchError(personalitiesData.error || 'Error in personalities response');
-          return;
-        }
-
-        // We have personalities
-        setPersonalities(personalitiesData.data);
-
-        // 2) Fetch user data to get default personality
-        const userResponse = await fetch('/api/me');
-        if (!userResponse.ok) {
-          setFetchError(`Error fetching user (status: ${userResponse.status})`);
-          return;
-        }
-        const userData = await userResponse.json();
-
-        const defaultPersonalityId = userData.user?.selectedPersonalityId || personalitiesData.data[0]?.id;
-        if (defaultPersonalityId) {
-          reset({ message: '', personalityId: defaultPersonalityId }, { keepErrors: true, keepDirty: false });
-        }
-      } catch (error) {
-        if (error instanceof Error) {
-          setFetchError(error.message);
-        } else {
-          setFetchError(String(error));
-        }
-      }
-    };
-
-    fetchUserAndPersonalities();
-  }, [reset]);
-
-  const onSubmit = async (data: FormData) => {
-    setFetchError(null); // Clear any prior top-level errors
-    try {
-      const response = await fetch('/api/generate/response', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          message: data.message,
-          personalityId: data.personalityId,
-        }),
-      });
-
-      if (!response.ok) {
-        const body = await response.text();
-        // Show the entire error (statusText + body) in ChatError
-        setFetchError(`Error generating response: ${response.statusText}\n${body}`);
-      } else {
-        const { reply } = await response.json();
-        console.log('Response:', reply);
-      }
-    } catch (error) {
-      if (error instanceof Error) {
-        setFetchError(error.message);
-      } else {
-        setFetchError(String(error));
-      }
-    } finally {
-      // Keep the same personality but reset message
-      reset((formValues) => ({ ...formValues, message: '' }), { keepErrors: false, keepDirty: false });
-      clearErrors(['message']);
-    }
-  };
+  // For the form submission logic
+  const { onSubmit } = useChatSubmit(reset, clearErrors, setFetchError);
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className='flex flex-col gap-4'>

@@ -46,9 +46,7 @@ export const POST = apiAuth(async (request) => {
     const { settings } = personality;
     const { maxContextLength, systemPrompt } = settings;
 
-    // 2. Fetch the last N messages from ChatLog for this user
     const recentMessages = await prisma.chatLog.findMany({
-      where: { userId: auth.user.sub },
       orderBy: { createdAt: 'desc' },
       take: maxContextLength,
     });
