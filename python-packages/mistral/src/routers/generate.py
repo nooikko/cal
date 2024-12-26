@@ -1,16 +1,11 @@
+import logging
 from fastapi import APIRouter
 from pydantic import BaseModel
 from typing import List, Optional
-
-# IMPORTANT: Import your model inference function (Mistral, etc.)
-# from ..model import generate_response
-# For demo purposes, we'll define a placeholder.
-
-def generate_response(prompt: str) -> str:
-    # Dummy example - in reality, call your actual model
-    return f"[Response to]: {prompt}"
+from ..model import generate_response
 
 router = APIRouter()
+logger = logging.getLogger(__name__)
 
 class ConversationItem(BaseModel):
     message: str
@@ -21,7 +16,7 @@ class ChatPayload(BaseModel):
     conversation: List[ConversationItem]
     personality_id: Optional[str] = None
 
-@router.post("/chat")
+@router.post("")
 def chat_endpoint(payload: ChatPayload):
     """
     Receives systemPrompt + conversation, returns a Mistral-based (or other LLM-based) response.
@@ -30,6 +25,7 @@ def chat_endpoint(payload: ChatPayload):
     - No database writes happen here. The Next.js service handles creating ChatLog entries.
     - This endpoint simply constructs a prompt from the input and gets a response from the LLM.
     """
+    logger.info("Received chat request")
     system_prompt = payload.systemPrompt
     conversation_items = payload.conversation
 
@@ -45,4 +41,5 @@ def chat_endpoint(payload: ChatPayload):
     answer = generate_response(prompt)
 
     # Return the model output as JSON
+    logger.info("Returning response")
     return {"reply": answer}

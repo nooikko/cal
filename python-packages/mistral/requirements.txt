@@ -1,0 +1,18 @@
+# requirements.txt
+
+# For PyTorch with CUDA 11.8, include the extra index URL:
+--extra-index-url https://download.pytorch.org/whl/cu118
+
+torch==2.5.1+cu118
+torchaudio==2.5.1+cu118
+torchvision==0.20.1+cu118
+
+# Hugging Face libraries
+transformers==4.33.2
+accelerate==0.22.0
+
+# Needed for tokenizers used by many Transformer models
+sentencepiece==0.1.99
+
+# Bitsandbytes library for 4-bit quantization
+bitsandbytes==0.45.0

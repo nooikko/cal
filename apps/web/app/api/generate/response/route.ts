@@ -1,26 +1,42 @@
+import { apiAuth } from '@/helpers/api-auth';
 import { prisma } from '@repo/database';
 import { error } from '@repo/logger';
-import { type NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
+import { z } from 'zod';
 
 const PYTHON_API_ENDPOINT = process.env.PYTHON_API_ENDPOINT || 'http://localhost:8001/chat';
 
 interface ChatRequestBody {
-  userId: string;
   message: string;
   personalityId: string; // The chosen personality
 }
 
-export const POST = async (request: NextRequest) => {
+const ChatRequestBodySchema = z.object({
+  message: z.string().min(1),
+  personalityId: z.string().min(1),
+});
+
+export const POST = apiAuth(async (request) => {
   try {
+    const { auth } = request;
+
+    if (!auth?.user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const body: ChatRequestBody = await request.json();
 
-    if (!body.userId || !body.message || !body.personalityId) {
-      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+    const parsedBody = ChatRequestBodySchema.safeParse(body);
+    if (!parsedBody.success) {
+      const firstIssue = parsedBody.error.issues[0];
+      return NextResponse.json({ error: `Missing ${firstIssue?.path[0]}` }, { status: 400 });
     }
+
+    const { message, personalityId } = parsedBody.data;
 
     // 1. Fetch the specified Personality + its settings
     const personality = await prisma.personality.findUnique({
-      where: { id: body.personalityId },
+      where: { id: personalityId },
       include: { settings: true },
     });
 
@@ -32,7 +48,7 @@ export const POST = async (request: NextRequest) => {
 
     // 2. Fetch the last N messages from ChatLog for this user
     const recentMessages = await prisma.chatLog.findMany({
-      where: { userId: body.userId },
+      where: { userId: auth.user.sub },
       orderBy: { createdAt: 'desc' },
       take: maxContextLength,
     });
@@ -48,7 +64,7 @@ export const POST = async (request: NextRequest) => {
     //    (We haven't created it in the DB yet; we do that after the Python call or right now.)
     conversation.push({
       via: 'TEXT',
-      message: body.message,
+      message: message,
       senderType: 'USER',
     });
 
@@ -75,20 +91,20 @@ export const POST = async (request: NextRequest) => {
     }
 
     const data = await response.json();
+    console.info('Python response:', data);
     const { reply } = data;
+
+    console.info('Python reply:', reply);
     if (!reply) {
       return NextResponse.json({ error: 'No reply from Python' }, { status: 500 });
     }
 
-    // 5. Store both the user’s new message & the system’s reply in ChatLog
-    //    User message: senderType=USER, userId=body.userId
     await prisma.chatLog.create({
       data: {
         senderType: 'USER',
         via: 'TEXT',
-        message: body.message,
-        userId: body.userId,
-        // personalityId is not set here, since the user is not the personality
+        message: message,
+        userId: auth.user.sub,
       },
     });
 
@@ -98,8 +114,8 @@ export const POST = async (request: NextRequest) => {
         senderType: 'SYSTEM',
         via: 'TEXT',
         message: reply,
-        personalityId: body.personalityId, // Link to the bot personality
-        // userId is not set, since this is from the system/bot
+        personalityId,
+        userId: null, // Link to the bot personality
       },
     });
 
@@ -110,4 +126,4 @@ export const POST = async (request: NextRequest) => {
     error('Error in /api/generate/chat route:', { err });
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-};
+});
