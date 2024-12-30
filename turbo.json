@@ -9,6 +9,7 @@
       "outputs": [".next/**", "!.next/cache/**"]
     },
     "web#dev": {
+      "dependsOn": ["@repo/logger#build", "@repo/queue#build", "@repo/lexical-parser#build"],
       "inputs": ["$TURBO_DEFAULT$", ".env.production.local", ".env.local", ".env.production", ".env"],
       "env": ["ELEVENLABS_API_KEY", "AUTH_GITHUB_SECRET", "AUTH_GITHUB_ID", "AUTH_SECRET", "APP_DATABASE_URL"]
     },
@@ -30,6 +31,16 @@
     "dev": {
       "cache": false,
       "persistent": true
+    },
+    "@repo/queue#dev": {
+      "cache": false,
+      "persistent": true,
+      "env": ["ABLY_API_KEY"]
+    },
+    "@repo/queue#build": {
+      "cache": false,
+      "env": ["ABLY_API_KEY"],
+      "dependsOn": ["@repo/logger#build"]
     },
     "db:generate": {
       "cache": false,

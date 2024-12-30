@@ -1,3 +1,4 @@
+
 services:
   # ------------------------------------------------
   # Chroma Postgres
@@ -53,52 +54,7 @@ services:
       - cal_app_postgres_data:/var/lib/postgresql/data
     restart: unless-stopped
 
-  # ------------------------------------------------
-  # Elasticsearch
-  # ------------------------------------------------
-#   cal_elasticsearch:
-#     image: docker.elastic.co/elasticsearch/elasticsearch:8.17.0
-#     container_name: cal_elasticsearch
-#     environment:
-#       - discovery.type=single-node
-#       - xpack.security.enabled=true
-#       - xpack.security.transport.ssl.enabled=false
-#       - xpack.security.http.ssl.enabled=false
-#       - "ELASTIC_PASSWORD=${ELASTIC_PASSWORD}"
-#     ulimits:
-#       memlock:
-#         soft: -1
-#         hard: -1
-#     volumes:
-#       - es-data:/usr/share/elasticsearch/data
-#     ports:
-#       - "9200:9200"
-#     networks:
-#       - elk
-
-#   # ------------------------------------------------
-#   # Kibana
-#   # ------------------------------------------------
-#   cal_kibana:
-#     image: docker.elastic.co/kibana/kibana:8.17.0
-#     container_name: cal_kibana
-#     environment:
-#       - "ELASTICSEARCH_HOSTS=http://cal_elasticsearch:9200"
-#       - "ELASTICSEARCH_USERNAME=elastic"
-#       - "ELASTICSEARCH_PASSWORD=${ELASTIC_PASSWORD}"
-#       - "XPACK_ENCRYPTEDSAVEDOBJECTS_ENCRYPTIONKEY=${KIBANA_ENCRYPTION_KEY}"
-#     depends_on:
-#       - cal_elasticsearch
-#     ports:
-#       - "5601:5601"
-#     networks:
-#       - elk
-
-# networks:
-#   elk:
-#     driver: bridge
 
 volumes:
-  # es-data:
   cal_chromadb_postgres_data:
   cal_app_postgres_data:

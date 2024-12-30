@@ -1,5 +1,5 @@
 {
-  "name": "@repo/logger",
+  "name": "@repo/queue",
   "version": "1.0.0",
   "license": "MIT",
   "exports": {
@@ -14,8 +14,10 @@
     "test": "jest --passWithNoTests"
   },
   "dependencies": {
+    "ably": "^2.6.0",
     "date-fns": "^4.1.0",
-    "zod": "^3.23.8"
+    "zod": "^3.23.8",
+    "@repo/logger": "*"
   },
   "devDependencies": {
     "@rollup/plugin-alias": "^5.1.1",
