@@ -51,7 +51,7 @@ export const useMicrophone = () => {
     formData.append('file', audioBlob, 'recording.webm');
 
     try {
-      const response = await fetch('http://localhost:8000/transcribe', {
+      const response = await fetch('http://localhost:3000/api/generate/speech-to-text', {
         method: 'POST',
         body: formData,
       });
