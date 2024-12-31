@@ -1,6 +1,6 @@
 {
   "$schema": "https://turbo.build/schema.json",
-  "ui": "tui",
+  "ui": "stream",
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
@@ -9,9 +9,9 @@
       "outputs": [".next/**", "!.next/cache/**"]
     },
     "web#dev": {
-      "dependsOn": ["@repo/logger#build", "@repo/queue#build", "@repo/lexical-parser#build"],
+      "dependsOn": ["@repo/logger#build", "@repo/queue#build", "@repo/lexical-parser#build", "@repo/converters#build"],
       "inputs": ["$TURBO_DEFAULT$", ".env.production.local", ".env.local", ".env.production", ".env"],
-      "env": ["ELEVENLABS_API_KEY", "AUTH_GITHUB_SECRET", "AUTH_GITHUB_ID", "AUTH_SECRET", "APP_DATABASE_URL"]
+      "env": ["ELEVENLABS_API_KEY", "AUTH_GITHUB_SECRET", "AUTH_GITHUB_ID", "AUTH_SECRET", "APP_DATABASE_URL", "ORT_MIN_LOG_LEVEL"]
     },
     "web#build": {
       "inputs": ["$TURBO_DEFAULT$", ".env.production.local", ".env.local", ".env.production", ".env"],

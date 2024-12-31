@@ -1,13 +1,14 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useContext } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { z } from 'zod';
-
-import { Button } from '@/components/ui/button';
-import { ArrowUp } from 'lucide-react';
-
+import { AudioInput } from './audio-input';
+import { AudioInputContext } from './audio-input/context';
 import { ChatError } from './chat-error';
+import { AudioControlButtons } from './controls/audio-control-buttons';
+import { ChatControlButton } from './controls/chat-control-buttons';
 import { useChatData } from './hooks/use-chat-data';
 import { useChatSubmit } from './hooks/use-chat-submit';
 import { ChatInput } from './input';
@@ -15,8 +16,9 @@ import { PersonalitySelector } from './personality-selector';
 
 // 1. Updated schema to have `personality`
 const schema = z.object({
-  message: z.string().min(1, 'Message is required'),
+  message: z.string().optional(),
   personalityId: z.string().min(1, 'Personality is required'),
+  audioBlob: z.boolean().optional(),
 });
 
 type FormData = z.infer<typeof schema>;
@@ -30,58 +32,57 @@ export function ChatForm() {
     clearErrors,
   } = useForm<FormData>({
     resolver: zodResolver(schema),
-    defaultValues: { message: '', personalityId: '' },
+    defaultValues: { message: '', personalityId: '', audioBlob: false },
     mode: 'onSubmit',
     reValidateMode: 'onSubmit',
   });
 
-  // Hook that auto-fetches personalities & user info once on mount
   const { fetchError, setFetchError, personalities } = useChatData(reset);
-
-  // For the form submission logic
+  const { isRecordingInProgress, stopRecording } = useContext(AudioInputContext);
   const { onSubmit } = useChatSubmit(reset, clearErrors, setFetchError);
 
+  const handleFormSubmit = (data: FormData) => {
+    const dataWithAudio = { ...data, audioBlob: isRecordingInProgress };
+    if (isRecordingInProgress) {
+      stopRecording();
+    }
+    console.log(dataWithAudio);
+    onSubmit(dataWithAudio);
+  };
+
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className='flex flex-col gap-4'>
-      {/* --- Top-level fetch error, if any --- */}
+    <form
+      onSubmit={(event) => {
+        event.preventDefault();
+
+        handleSubmit(handleFormSubmit)();
+      }}
+      className='flex flex-col gap-4'
+    >
       {fetchError && <ChatError message={fetchError} />}
-
-      {/* Show any message errors */}
       {errors.message?.message && <ChatError message={errors.message.message} />}
-
-      {/* Show any personality errors */}
       {errors.personalityId?.message && <ChatError message={errors.personalityId.message} />}
+
+      <AudioInput />
 
       <div className='flex items-center space-x-2'>
         <div>Personality</div>
         <Controller
           name='personalityId'
           control={control}
-          render={({ field }) => {
-            const { onChange, value } = field;
-            return <PersonalitySelector value={value} onChange={onChange} personalities={personalities} />;
-          }}
+          render={({ field }) => <PersonalitySelector value={field.value} onChange={field.onChange} personalities={personalities} />}
         />
       </div>
 
       <Controller
         name='message'
         control={control}
-        render={({ field }) => {
-          const { onChange, value } = field;
-          return (
-            <ChatInput
-              placeholder='Say something...'
-              value={value}
-              onChange={(textValue) => onChange(textValue)}
-              onEnter={() => handleSubmit(onSubmit)()}
-            >
-              <Button className='rounded-full p-1 h-7 w-7' type='submit' disabled={value.length === 0 || isSubmitting}>
-                {isSubmitting ? <div className='animate-spin h-4 w-4 border-b-2 border-white rounded-full' /> : <ArrowUp className='h-4 w-4' />}
-              </Button>
-            </ChatInput>
-          );
-        }}
+        render={({ field }) => (
+          <ChatInput placeholder='Say something...' value={field.value} onChange={field.onChange} onEnter={() => handleSubmit(handleFormSubmit)()}>
+            <ChatControlButton isSubmitting={isSubmitting} show={(field.value?.length ?? 0) > 0} />
+            <AudioControlButtons isSubmitting={isSubmitting} show={(field.value?.length ?? 0) === 0} />
+          </ChatInput>
+        )}
       />
     </form>
   );

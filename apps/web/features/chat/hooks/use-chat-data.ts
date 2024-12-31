@@ -3,8 +3,9 @@ import { useCallback, useEffect, useState } from 'react';
 import type { UseFormReset } from 'react-hook-form';
 
 type FormData = {
-  message: string;
   personalityId: string;
+  message?: string | undefined;
+  audioBlob?: boolean;
 };
 
 export const useChatData = (reset: UseFormReset<FormData>) => {
