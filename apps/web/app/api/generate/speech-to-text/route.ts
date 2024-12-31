@@ -13,7 +13,14 @@ export const POST = async (request: NextRequest) => {
     const arrayBuffer = await audioBlob.arrayBuffer();
     const float32Data = new Float32Array(arrayBuffer);
 
-    const asrPipeline = await pipeline('automatic-speech-recognition', 'distil-whisper/distil-large-v3');
+    const asrPipeline = await pipeline('automatic-speech-recognition', 'distil-whisper/distil-large-v3', {
+      quantized: true,
+      progress_callback: undefined,
+      config: null,
+      cache_dir: undefined,
+      local_files_only: false,
+      revision: 'main',
+    });
 
     const result = (await asrPipeline(float32Data)) as AutomaticSpeechRecognitionOutput;
 
