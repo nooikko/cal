@@ -5,7 +5,7 @@ import { AudioInputContext } from '../audio-input/context';
 
 type FormData = {
   personalityId: string;
-  message?: string | undefined;
+  message?: string;
   audioBlob?: boolean;
 };
 
@@ -18,7 +18,8 @@ export const useChatSubmit = (
 
   const onSubmit = useCallback(
     async (data: FormData) => {
-      setFetchError(null); // Clear any prior top-level errors
+      setFetchError(null);
+
       try {
         const formData = new FormData();
         formData.append('personalityId', data.personalityId);
@@ -31,12 +32,9 @@ export const useChatSubmit = (
         }
 
         if (blobToSubmit) {
-          console.log('MIME type:', blobToSubmit.type);
           const withCorrectSampleRate = await convertSampleRate(blobToSubmit);
           const asF32 = convertAudioBufferToFloat32(withCorrectSampleRate);
-          const floatBlob = new Blob([asF32.buffer], {
-            type: 'application/octet-stream',
-          });
+          const floatBlob = new Blob([asF32.buffer], { type: 'application/octet-stream' });
           formData.append('audioData', floatBlob, 'audio.f32');
           apiUrl = '/api/generate/speech-to-text';
         } else {
@@ -45,27 +43,20 @@ export const useChatSubmit = (
 
         const response = await fetch(apiUrl, {
           method: 'POST',
-          body: formData, // Use FormData for handling files
+          body: formData,
         });
 
         if (!response.ok) {
           const body = await response.text();
-          console.error('Error response:', response.statusText, body);
           setFetchError(`Error generating response: ${response.statusText}\n${body}`);
         } else {
           const json = await response.json();
-          console.log('Response:', json);
+
+          return json;
         }
       } catch (error) {
-        console.error('Error during fetch:', error);
-        if (error instanceof Error) {
-          setFetchError(error.message);
-        } else {
-          setFetchError(String(error));
-        }
+        setFetchError(error instanceof Error ? error.message : String(error));
       } finally {
-        // Reset the form, keeping the same personality
-        console.log('Resetting form');
         reset((formValues) => ({ ...formValues, message: '' }), { keepErrors: false, keepDirty: false });
         clearErrors(['message']);
       }
