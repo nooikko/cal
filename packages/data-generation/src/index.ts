@@ -1,4 +1,4 @@
-import { ENTITIES, LOCATIONS, STARTERS, TIMES, TITLES, VERBS } from './wordlists.js'; // adjust your actual import paths
+import { ENTITIES, LOCATIONS, STARTERS, TIMES, TITLES, VERBS } from './seed'; // adjust your actual import paths
 
 function getRandomItem(arr) {
   return arr[Math.floor(Math.random() * arr.length)];
