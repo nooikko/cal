@@ -1,6 +1,6 @@
 import { ENTITIES, LOCATIONS, STARTERS, TIMES, TITLES, VERBS } from './seed'; // adjust your actual import paths
 
-function getRandomItem(arr) {
+function getRandomItem(arr: string[]) {
   return arr[Math.floor(Math.random() * arr.length)];
 }
 
