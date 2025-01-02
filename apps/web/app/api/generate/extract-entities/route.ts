@@ -1,9 +1,10 @@
 import { pipeline } from '@xenova/transformers';
+import { parse } from 'chrono-node';
 import { type NextRequest, NextResponse } from 'next/server';
 
-export const GET = async (request: NextRequest) => {
+export const GET = async (_request: NextRequest) => {
   try {
-    const { input } = await request.json();
+    // const { input } = await request.json();
 
     const tokenPipeline = await pipeline('token-classification', 'Xenova/bert-base-NER', {
       quantized: true,
@@ -14,11 +15,14 @@ export const GET = async (request: NextRequest) => {
       revision: 'main',
     });
 
-    const result = await tokenPipeline(input);
+    const input = 'Add an appointment with Doctor Smith to my calendar for tomorrow at 3pm';
 
-    return NextResponse.json({ entities: result }, { status: 201, statusText: 'Created' });
+    const entities = await tokenPipeline(input);
+    const dates = parse(input);
+
+    return NextResponse.json({ entities, dates }, { status: 201, statusText: 'Created' });
   } catch (err) {
-    console.error('ASR route error:', err);
+    console.error('Entity extraction error:', err);
     return NextResponse.json({ error: (err as Error)?.message ?? String(err) }, { status: 500, statusText: 'Internal Server Error' });
   }
 };
